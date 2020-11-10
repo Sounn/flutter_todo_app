@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+void main() {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // Firebase.initializeApp();
   runApp(MyApp());
 }
 
@@ -31,39 +31,71 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
-      builder:(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Text('Something went wrong');
-        }
+    CollectionReference tasks = FirebaseFirestore.instance.collection('tasks');
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('todo'),
+      ),
+      body: FutureBuilder(
+        // future: tasks.doc('').get(),
+      future: FirebaseFirestore.instance.collection('tasks').doc('').snapshots(),
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
 
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Loading");
-        }
+          if (snapshot.hasError) {
+            return Text("失敗");
+          }
 
-        return Scaffold(
-                appBar: AppBar(
-                  title: Text('todos'),
-                ),
-                body: Container(
-                  child: ListView(
-                    // ignore: deprecated_member_use
-                    children: snapshot.data.documents.map((DocumentSnapshot document) {
-                      return Text(document.data()['todo']);
-                    }).toList(),
-                  ),
-                ),
-                floatingActionButton: FloatingActionButton(
-                  onPressed: (){
-                    Navigator.of(context).pushNamed("/new");
-                  },
-                  tooltip: 'Increment',
-                  child: Icon(Icons.add),
-                ),
-                
-          );
-      },
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+
+          return new ListView(
+            children: snapshot.data['documents'].map((DocumentSnapshot document) {
+              return ListTile(
+                title: Text(document.data()['todo']),
+                subtitle: Text(document.data()['timer']),
+              );
+            }).toList(),
+          );},
+      ),
+    );
+  }
+}
+
+// class _MyHomePageState extends State<MyHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    CollectionReference tasks = FirebaseFirestore.instance.collection('tasks');
+    
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('todo'),
+      ),
+      body: FutureBuilder(
+        // future: tasks.doc('').get(),
+      future: FirebaseFirestore.instance.collection('tasks').doc('').snapshots(),
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+
+          if (snapshot.hasError) {
+            return Text("失敗");
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Text("Loading");
+          }
+
+          return new ListView(
+            children: snapshot.data['documents'].map((DocumentSnapshot document) {
+              return ListTile(
+                title: Text(document.data()['todo']),
+                subtitle: Text(document.data()['timer']),
+              );
+            }).toList(),
+          );},
+      ),
     );
   }
 }
@@ -144,3 +176,29 @@ class _NewTodoPageState extends State<NewTodoPage> {
 //     );
 //   }
 // }
+
+
+
+
+
+
+return Scaffold(
+      appBar: AppBar(
+        title: Text('todo'),
+      ),
+      body: Container(
+        child: ListView(
+          // ignore: deprecated_member_use
+          children: snapshot.data.documents.map((DocumentSnapshot document) {
+            return Text(document.data()['todo']);
+          }).toList(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          Navigator.of(context).pushNamed("/new");
+        },
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ),
+    ),
+);
