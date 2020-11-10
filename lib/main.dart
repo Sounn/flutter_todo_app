@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -84,8 +85,11 @@ class _NewTodoPageState extends State<NewTodoPage> {
         child: Column(
         children: <Widget>[
           TextFormField(
+            enabled: true,
             decoration: InputDecoration(
-              hintText: 'やること',
+              hintText: 'やることを入力してください',
+              icon: Icon(Icons.work),
+              labelText: 'やること *',
             ),
             // // 複数行のテキスト入力
             // keyboardType: TextInputType.multiline,
