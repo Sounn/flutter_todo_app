@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,26 +35,46 @@ class MyHomePage extends StatelessWidget {
       stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
       builder:(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
-          return Text('Something went wrong');
+          return Scaffold(
+                appBar: AppBar(
+                  title: Text('todos'),
+                ),
+                body: Center(
+                  child: Text('Something went wrong'),
+                  ),
+          );
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Loading");
+          return Scaffold(
+                appBar: AppBar(
+                  title: Text('todos'),
+                ),
+                body: Center(
+                  child: Text("Loading"),
+                  ),
+          );
         }
+        
+        final int todolength = snapshot.data.documents.length;
 
         return Scaffold(
                 appBar: AppBar(
                   title: Text('todos'),
                 ),
                 body: Container(
-                  child: ListView(
-                    // ignore: deprecated_member_use
-                    children: snapshot.data.documents.map((DocumentSnapshot document) {
-                      return Text(document.data()['todo']);
-                    }).toList(),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(width: 1.0, color: Colors.grey))
+                  ),
+                  child: ListView.builder(
+                    itemCount: todolength,
+                    itemBuilder: (BuildContext context, int index){
+                      final DocumentSnapshot _todo= snapshot.data.documents[index];
+                        return  _todoItem(_todo['todo']);
+                    },
                   ),
                 ),
-                floatingActionButton: FloatingActionButton(
+                floatingActionButton: FloatingActionButton( //todo作成ボタン
                   onPressed: (){
                     Navigator.of(context).pushNamed("/new");
                   },
@@ -67,7 +86,31 @@ class MyHomePage extends StatelessWidget {
       },
     );
   }
+  Widget _todoItem(String title) { //todolist描画
+    return Container(
+      decoration: new BoxDecoration(
+        border: new Border(bottom: BorderSide(width: 1.0, color: Colors.grey))
+      ),
+      child:ListTile(
+        title: Text(
+          title,
+          style: TextStyle(
+            color:Colors.black,
+            fontSize: 18.0
+          ),
+        ),
+        onTap: () {
+          print("編集");
+        }, // タップ
+        onLongPress: () {
+          print("並び替え");
+        }, // 長押し
+      ),
+    );
+  }
 }
+
+
 
 class NewTodoPage extends StatefulWidget {
   @override
