@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import './task_model.dart';
+import './task.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 
 class TaskListPage extends StatelessWidget {
@@ -13,12 +16,30 @@ class TaskListPage extends StatelessWidget {
                 final tasks = model.tasks;
                 final listTiles = tasks
                   .map(
-                    (task) => ListTile(
-                      title: Text(task.todo),
-                      onTap: (){
-                        Navigator.of(context).pushNamed("/update", arguments: task);
-                      }
-                    ),
+                    (task) => Slidable(
+                      actionPane: SlidableDrawerActionPane(),
+                      actionExtentRatio: 0.25,
+                      child: Container(
+                        color: Colors.white,
+                        child: ListTile(
+                          title: Text(task.todo),
+                          onTap: (){
+                            Navigator.of(context).pushNamed("/update", arguments: task);
+                          },
+                        ),
+                      ),
+                    actions: <Widget>[
+                      IconSlideAction(
+                        caption: '消去',
+                        color: Colors.red,
+                        icon: Icons.delete_forever_outlined,
+                        onTap: () {
+                          updateTask(task, context);
+                          Navigator.of(context).pushNamed("/home");
+                        },
+                      ),
+                    ],
+                  ),
                   ).toList();
                 return ListView(
                   children: listTiles,
@@ -27,6 +48,10 @@ class TaskListPage extends StatelessWidget {
             ),
       ),
     );
+  }
+  Future updateTask(Task task,BuildContext context) async {
+    final document = FirebaseFirestore.instance.collection('tasks').doc(task.documentID);
+    await document.delete();
   }
 }
 
