@@ -11,6 +11,9 @@ class TaskListPage extends StatelessWidget {
     return ChangeNotifierProvider<TaskModel>(
       create: (_) => TaskModel()..fetchTasks(),
       child: Scaffold(
+            appBar: AppBar(
+            title: Text('タスク一覧'),
+            ),
             body: Consumer<TaskModel>(
               builder: (context, model, child) {
                 final tasks = model.tasks;
